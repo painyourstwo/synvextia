@@ -1,11 +1,12 @@
-
 local code = [[loadstring(game:HttpGet("https://raw.githubusercontent.com/painyourstwo/synvextia/refs/heads/main/hhhh.txt"))()]]
 
 function missing(t, f, fallback)
     if type(f) == t then return f end
     return fallback
 end
+
 queueteleport = missing("function", queue_on_teleport or (syn and syn.queue_on_teleport) or (fluxus and fluxus.queue_on_teleport))
+local setclip = setclipboard or writeclipboard or toclipboard or (syn and syn.write_clipboard) or function() end
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -16,7 +17,6 @@ local HttpService = game:GetService("HttpService")
 local PLACE_ID = game.PlaceId
 local plr = Players.LocalPlayer
 local teleporting = false
-
 
 local function serverHop()
     if queueteleport and code ~= "" then
@@ -151,29 +151,39 @@ local function storeFruits()
     end
 end
 
-local event = ReplicatedStorage.Remotes.CommF_
-Event:InvokeServer("SetTeam2", "Marines")
-task.wait(2)
+local success, err = pcall(function()
+    local event = ReplicatedStorage.Remotes.CommF_
+    event:InvokeServer("SetTeam2", "Marines")
+    task.wait(2)
 
-while true do
-    local foundFruit = nil
-    
-    for _, obj in pairs(workspace:GetChildren()) do
-        if string.find(obj.Name, "Fruit") and obj:FindFirstChild("Handle") then
-            foundFruit = obj
-            break
+    while true do
+        local foundFruit = nil
+        
+        for _, obj in pairs(workspace:GetChildren()) do
+            if string.find(obj.Name, "Fruit") and obj:FindFirstChild("Handle") then
+                foundFruit = obj
+                break
+            end
         end
-    end
 
-    if foundFruit then
-        TP1(foundFruit.Handle.CFrame)
-        task.wait(1) 
-        storeFruits()
-        task.wait(3) 
-    else
-        serverHop()
-        task.wait(10)
+        if foundFruit then
+            TP1(foundFruit.Handle.CFrame)
+            task.wait(1) 
+            storeFruits()
+            task.wait(3) 
+        else
+            serverHop()
+            task.wait(10)
+        end
+        
+        task.wait(0.5)
     end
-    
-    task.wait(0.5)
+end)
+
+if not success then
+    local errMessage = "Error caught:\n\n" .. tostring(err) .. "\n\nTraceback:\n" .. debug.traceback()
+    print(errMessage)
+    pcall(function()
+        setclip(errMessage)
+    end)
 end
